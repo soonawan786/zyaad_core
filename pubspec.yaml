@@ -1,0 +1,59 @@
+name: zyaad_core
+description: >-
+  Shared Zyaad Islamic-feature code: prayer-time models, the local-notification
+  schedule planner and channel, Qibla bearing, the tilt-compensated compass
+  heading, the motion gate, the driver prayer-break timer, and the shared
+  screens (next-prayer card, Qibla, settings, prayer-stop prompt).
+
+  The domain logic is plain Dart so it can be unit-tested without a device; the
+  Flutter layer is here so the rider app and the driver app use one
+  implementation of everything rather than two that drift apart.
+version: 1.0.0
+
+# Not published to pub.dev: consumed as a git dependency (or a path dependency
+# during local development). Remove this line if you ever want `dart pub
+# publish` to work.
+publish_to: 'none'
+
+# Fill these in when the repository is created — `dart pub publish --dry-run`
+# and pub.dev both read them.
+# homepage: https://github.com/<org>/zyaad_core
+# repository: https://github.com/<org>/zyaad_core
+# issue_tracker: https://github.com/<org>/zyaad_core/issues
+
+topics:
+  - flutter
+  - prayer-times
+  - qibla
+  - notifications
+
+environment:
+  sdk: '>=3.3.4 <4.0.0'
+  flutter: '>=3.19.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # State management, matching the host apps.
+  get: ^4.7.3
+
+  # Local notifications + the timezone database used to convert a prayer's
+  # absolute instant into the city's zone for zonedSchedule().
+  flutter_local_notifications: ^22.0.1
+  timezone: ^0.11.0
+
+  # Magnetometer + accelerometer for the compass. See README.md for why the
+  # heading fusion is ours rather than a compass plugin's.
+  sensors_plus: ^7.1.1
+
+  # Device-only preferences (azan sound) and the cached prayer window.
+  shared_preferences: ^2.5.5
+
+  # Opens the OS battery-optimisation screen from the settings guide.
+  app_settings: ^7.0.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0

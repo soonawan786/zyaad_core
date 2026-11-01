@@ -1,0 +1,11 @@
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  language:
+    strict-casts: true
+    # strict-raw-types is deliberately OFF: GetX's HTTP layer is typed
+    # `Response<T = dynamic>`, so every repository method in the host apps already
+    # returns a raw `Response`, and turning it on here would flag the shared API
+    # interfaces for matching the framework they wrap.
+  errors:
+    todo: ignore
