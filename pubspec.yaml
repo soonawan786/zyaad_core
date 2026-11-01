@@ -15,11 +15,9 @@ version: 1.0.0
 # publish` to work.
 publish_to: 'none'
 
-# Fill these in when the repository is created — `dart pub publish --dry-run`
-# and pub.dev both read them.
-# homepage: https://github.com/<org>/zyaad_core
-# repository: https://github.com/<org>/zyaad_core
-# issue_tracker: https://github.com/<org>/zyaad_core/issues
+homepage: https://github.com/soonawan786/zyaad_core
+repository: https://github.com/soonawan786/zyaad_core
+issue_tracker: https://github.com/soonawan786/zyaad_core/issues
 
 topics:
   - flutter
