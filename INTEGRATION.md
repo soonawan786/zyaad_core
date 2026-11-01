@@ -24,83 +24,68 @@ Pick one of the three options below.
 
 ---
 
-## Option A — a git dependency (recommended)
+## Option A — a git dependency (this is what you now have)
 
-`zyaad_core` becomes its own repository, and the apps point at a **tag**:
+`zyaad_core` lives at **https://github.com/soonawan786/zyaad_core** and both apps
+depend on a **tag**:
 
 ```yaml
 # in zyaad-user/pubspec.yaml and zyaad-driver/pubspec.yaml
 dependencies:
   zyaad_core:
     git:
-      url: git@github.com:<org>/zyaad_core.git
+      url: https://github.com/soonawan786/zyaad_core.git
       ref: v1.0.0        # a tag, never a branch
 ```
 
-### Create and push the repository
+Verified: `flutter pub get` resolves it in both apps and `pubspec.lock` pins the
+commit:
 
-The folder is already set up for it: `LICENSE`, `CHANGELOG.md`, `.gitignore` and a
-CI workflow are in place.
-
-```bash
-cd zyaad_core
-
-git init
-git add .
-git commit -m "zyaad_core 1.0.0: prayer times, notifications, Qibla, prayer break"
-
-# create the repo (choose one)
-gh repo create <org>/zyaad_core --private --source=. --push
-# or, if it already exists:
-git remote add origin git@github.com:<org>/zyaad_core.git
-git branch -M main
-git push -u origin main
-
-git tag v1.0.0
-git push origin v1.0.0
+```
+zyaad_core:
+  dependency: "direct main"
+  description:
+    ref: "v1.0.0"
+    resolved-ref: "76edfa606993bb814b3a9624848945432810227f"
+    url: "https://github.com/soonawan786/zyaad_core.git"
+  source: git
+  version: "1.0.0"
 ```
 
-### Public or private?
+### Why a tag and not `main`
 
-**Private.** It contains no secrets, but it is not a general-purpose library, and a
-public repo means the world can file issues against it and read your release history.
-Keep it private unless you deliberately want it public.
+`ref: main` would mean the next push to `zyaad_core` silently changes what your apps
+build. A tag makes a core change a deliberate decision: bump the tag, run
+`flutter pub get`, commit the new lock. The lock file then makes two builds of the
+same app tag byte-identical.
 
-If it is **private**, CI needs read access. In each app repository add a read-only
-deploy key:
+### The repository is public, so no CI credentials are needed
+
+HTTPS works for anonymous clones, so there is **no deploy key and no token** to
+manage. If you ever make it private again you would need a read-only deploy key in
+each app's CI:
 
 ```yaml
-# .github/workflows/build.yml in the app repo
 - uses: webfactory/ssh-agent@v0.9.0
   with:
     ssh-private-key: ${{ secrets.ZYAAD_CORE_DEPLOY_KEY }}
 ```
 
-Add the public half to the `zyaad_core` repository's deploy keys with read access.
-Never put a personal access token in the pubspec — it ends up in the lock file.
+…and the `url:` would have to become SSH (`git@github.com:...`), because pub cannot
+prompt for an HTTPS password in CI.
 
-For a **private** repo the `url:` must be SSH (`git@github.com:...`), because pub
-cannot prompt for an HTTPS password in CI. On your own machine either add your SSH
-key or run:
+### The cost of public
 
-```bash
-git config --global url."git@github.com:".insteadOf "https://github.com/"
-```
+Anyone can read the code and open issues. That is acceptable here — there is nothing
+secret in it — but it does mean:
 
-### If you do make it public
-
-Then HTTPS works everywhere and no key is needed:
-
-```yaml
-zyaad_core:
-  git:
-    url: https://github.com/<org>/zyaad_core.git
-    ref: v1.0.0
-```
-
-Also fill in `homepage`, `repository` and `issue_tracker` in `pubspec.yaml` (they are
-commented placeholders) — pub warns about them, and they are what makes a package
-discoverable.
+* **Do not add a merchant API key, a signing secret or a service credential** to this
+  package. It would be public within a second of the next push.
+* The `topics:` and `repository:` metadata in `pubspec.yaml` are what make it
+  discoverable; that is intended.
+* If you later want it private, note that the git history is already public and
+  cannot be un-published. A secret committed by accident would have to be rotated,
+  not deleted.
 
 ---
 

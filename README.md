@@ -14,9 +14,19 @@ dart analyze
 
 133 tests, analyzer clean.
 
-**Deploying this package into your live apps** (path vs git vs pub.dev, CI keys,
-public vs private) is covered in [INTEGRATION.md](INTEGRATION.md). Read that before
-you ship — the current `path: ../zyaad_core` dependency does not survive CI.
+**Consumed by the apps** from a pinned tag:
+
+```yaml
+zyaad_core:
+  git:
+    url: https://github.com/soonawan786/zyaad_core.git
+    ref: v1.0.0
+```
+
+See [INTEGRATION.md](INTEGRATION.md) for the release process, the local-development
+override, and the things that will bite you (the single notifications plugin
+instance, the per-app manifest entries, and why the break-timer tests live here
+rather than in the driver app).
 
 ## Package choices, and the checks behind them
 

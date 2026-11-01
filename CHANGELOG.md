@@ -1,3 +1,9 @@
+## 1.0.1
+
+* Docs only: `README.md` and `INTEGRATION.md` now describe the package as it is
+  actually consumed — a public git dependency pinned to a tag — instead of the
+  earlier path-dependency setup. No code change.
+
 ## 1.0.0
 
 First release.
