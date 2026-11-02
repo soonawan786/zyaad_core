@@ -128,6 +128,41 @@ self-consistent.
 > 267.7° and Faisalabad 259.6°. The app always shows the computed value for the
 > user's own position.
 
+## Share card
+
+`lib/src/features/sharing/` renders one ayah or hadith as a 1080-wide PNG and hands
+it to the OS share sheet.
+
+```dart
+final content = ShareCardContent.fromApiItem(item); // from GET /api/v1/daily-content
+await Get.find<ShareCardService>().share(
+  context: context,
+  content: content,
+  format: ShareCardFormat.story,
+  origin: shareOriginOf(buttonContext), // required on iPad
+);
+```
+
+* **Both formats**, captured at 3x: 1080×1350 (feed) and 1080×1920 (Story/Status).
+  The card is laid out at 360×450 and 360×640 logical pixels and the ratio is derived
+  from the sizes, so the output is exact with no post-scaling.
+* **Three templates** — `classic`, `night`, `minimal` — as palettes rather than three
+  widget files, because the layout is identical across them and three copies would
+  mean three copies of the citation rules that must never drift.
+* **Text is never truncated.** Each block wraps at a bounded width and is then scaled
+  down to fit, so Ayat al-Kursi renders smaller than 112:1 rather than losing its
+  last line.
+* **Nothing is fabricated.** `ShareCardContent.fromApiItem` throws when
+  `arabic_text`, `reference` or `source.name` is missing, so a card without a citation
+  cannot exist. Absent fields are omitted, never defaulted.
+* **`share_plus` is not a dependency here.** See `INTEGRATION.md`, "Wiring the share
+  sheet" — it resolves `objective_c`, whose build hook needs Xcode and broke
+  `flutter test` in this package. The share sheet is reached through the
+  `ShareCardSharer` interface, implemented in each app.
+
+`ShareCardPreview` gives the on-screen preview plus loading and error states.
+`assets/font/` holds Noto Naskh Arabic under the SIL OFL 1.1.
+
 ## Two things worth knowing about the design
 
 **The planner cancels before it schedules.** `allNotificationIds()` covers the

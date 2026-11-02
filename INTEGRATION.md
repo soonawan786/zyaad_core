@@ -200,4 +200,75 @@ lock file pins the exact commit, so two builds of the same app tag are identical
    opinion about whether this handset makes a noise. They persist locally, so they do
    not follow a user to a new phone — which is the behaviour you want.
 
+---
+
+## Wiring the share sheet (required — sharing does nothing without it)
+
+`zyaad_core` renders the card and produces the PNG, but it deliberately does **not**
+depend on `share_plus`:
+
+> `share_plus` resolves `objective_c` transitively, whose build hook requires a
+> working Xcode native-assets toolchain. Declaring it in this package made
+> `flutter test` fail here **before a single test ran**. It would also stay green on
+> the `ubuntu-latest` CI while blocking every macOS developer without full Xcode —
+> the worst kind of failure, because CI would not catch it.
+
+So the package defines `ShareCardSharer` and the host app supplies the
+implementation. Each app has one adapter file:
+
+```
+zyaad-user/lib/features/prayer/share_card_sharer.dart
+zyaad-driver/lib/features/prayer/share_card_sharer.dart
+```
+
+and one pair of registrations in `lib/helper/di_container.dart`:
+
+```dart
+Get.lazyPut<ShareCardSharer>(() => const SharePlusShareCardSharer());
+Get.lazyPut(() => ShareCardService(sharer: Get.find<ShareCardSharer>()));
+```
+
+`ShareCardService`'s `sharer` is a **required** argument with no default. A default
+would have to be a no-op, and a no-op default turns a forgotten wiring into a button
+that appears to work and shares nothing. A third app will not compile until it
+supplies a sharer, which is the point.
+
+### Using it
+
+```dart
+final content = ShareCardContent.fromApiItem(item); // one element of data.items[]
+final service = Get.find<ShareCardService>();
+
+final result = await service.share(
+  context: context,
+  content: content,
+  format: ShareCardFormat.story,
+  template: ShareCardTemplates.defaultFor(ShareCardFormat.story),
+  origin: shareOriginOf(buttonContext), // required on iPad
+);
+
+if (result.isFailure) {
+  showError(result.message!);
+}
+```
+
+`origin` is not optional in practice: on iPad the sheet is a popover and iOS needs a
+rectangle to anchor it to. `shareOriginOf` is exported for exactly this and returns
+null safely on phones.
+
+**Nothing can be fabricated.** `ShareCardContent.fromApiItem` throws
+`ShareCardContentException` when `arabic_text`, `reference` or `source.name` is
+missing, so a card without a citation cannot be constructed and therefore cannot be
+shared. Fields the API did not send stay null and are simply not rendered — never
+defaulted to a placeholder.
+
+`ShareCardService.cleanUp()` reaps stale rendered cards. Safe to call on app start.
+
+### The Arabic font
+
+`NotoNaskhArabic` is bundled in `assets/font/` with its OFL licence beside it. It is
+declared in `pubspec.yaml`, so the card asks for it by name and falls back to the
+platform's Arabic face only if the asset is missing. See
+`assets/font/README.md`.
+
 

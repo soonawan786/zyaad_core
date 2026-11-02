@@ -1,3 +1,13 @@
+## 1.0.3
+
+* Docs only: `INTEGRATION.md` gains "Wiring the share sheet" — the required
+  `ShareCardSharer` adapter and DI registration in each app, and the reason
+  `share_plus` is not a dependency here. `README.md` gains a share card section. No
+  code change.
+
+  Shipped as a tag rather than left on `main` because the share card's own code
+  comments reference that section by name; a pinned copy without it would dangle.
+
 ## 1.0.2
 
 * **Share card.** `lib/src/features/sharing/` — renders one ayah or hadith from
