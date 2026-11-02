@@ -1,3 +1,30 @@
+## 1.0.2
+
+* **Share card.** `lib/src/features/sharing/` — renders one ayah or hadith from
+  `GET /api/v1/daily-content` as a 1080-wide PNG and hands it to the OS share
+  sheet.
+  * `ShareCardContent.fromApiItem` parses the API payload and **throws** when
+    `arabic_text`, `reference` or `source.name` is missing, so a card without a
+    citation cannot be constructed. Optional fields render only when the API sent
+    them; nothing is defaulted to a placeholder.
+  * `ShareCard` — three templates (classic / night / minimal), both formats
+    (1080×1350 and 1080×1920, captured at 3x), RTL Arabic with per-line direction
+    for mixed Urdu/English, and text that is **scaled down rather than truncated**.
+  * `WidgetShareCardRenderer` — `RepaintBoundary` → `toImage()`. The card is wrapped
+    in an `UnconstrainedBox`, because the overlay's constraints otherwise clamped it
+    and a Story card silently exported at 960 px wide on a 320 dp device.
+  * `ShareCardFileStore` — temp files via `dart:io`, unique names per share, stale
+    files reaped. Never deletes a file it has just shared, because Android's
+    receiving app may read it lazily.
+  * `ShareCardPreview` — preview, loading and error states.
+  * `NotoNaskhArabic` bundled under `assets/font/` (SIL OFL 1.1).
+* **No new dependencies.** `share_plus` is deliberately *not* declared here: it
+  resolves `objective_c` transitively, whose build hook requires a working Xcode
+  native-assets toolchain, which made `flutter test` in this package fail before a
+  single test ran. The share sheet is reached through the `ShareCardSharer`
+  interface, implemented in the host apps (which already depend on `share_plus`).
+* 37 new tests. `flutter analyze` clean.
+
 ## 1.0.1
 
 * Docs only: `README.md` and `INTEGRATION.md` now describe the package as it is
