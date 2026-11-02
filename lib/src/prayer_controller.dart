@@ -245,14 +245,29 @@ class PrayerController extends GetxController {
   /// A fresh cache for the same city is used as-is (no network at all), which is
   /// what makes the card, the Qibla screen and the reminder schedule work on a
   /// plane. A stale or missing cache is replaced.
-  Future<void> load({required String cityId, bool force = false}) async {
-    this.cityId = cityId;
-    await sharedPreferences.setString(PrayerStorageKeys.cityId, cityId);
+  Future<void> load({String? cityId, bool force = false}) async {
+    /*
+     * The city is optional, and usually absent.
+     *
+     * The apps hold a zone rather than a city and send it as a `zoneId` header; the
+     * backend resolves the city from `zones.city_id` (App\Domain\Prayer\
+     * PrayerCityContext). Requiring a city here is what made this method
+     * uncallable and the whole feature unreachable — nothing in either app has one.
+     *
+     * The local cache still works without a city: it is keyed on whatever the
+     * controller was last given, which is nothing on a fresh install.
+     */
+    if (cityId != null) {
+      this.cityId = cityId;
+      await sharedPreferences.setString(PrayerStorageKeys.cityId, cityId);
+    }
+
+    final cacheKey = this.cityId ?? '';
 
     // Timezone database + notification channels, before anything is scheduled.
     await initializeNotifications();
 
-    final cached = _readCache(cityId);
+    final cached = _readCache(cacheKey);
 
     if (cached.isNotEmpty) {
       days = cached;
@@ -264,13 +279,13 @@ class PrayerController extends GetxController {
       }
     }
 
-    await _fetchWindow(cityId);
+    await _fetchWindow(this.cityId, cacheKey);
   }
 
   bool _cacheIsFresh(List<PrayerDay> cached) =>
       cached.first.date == _todayIn(cached.first.timezone);
 
-  Future<void> _fetchWindow(String cityId) async {
+  Future<void> _fetchWindow(String? cityId, String cacheKey) async {
     isLoading = true;
     update();
 
@@ -318,7 +333,7 @@ class PrayerController extends GetxController {
     }
 
     days = collected;
-    _writeCache(cityId, collected);
+    _writeCache(cacheKey, collected);
     isLoading = false;
     update();
 
@@ -392,7 +407,7 @@ class PrayerController extends GetxController {
   ///
   /// Re-fetches when the local date has moved on, so a card left open overnight does
   /// not keep showing yesterday's ayah.
-  Future<void> loadDailyContent({required String cityId, bool force = false}) async {
+  Future<void> loadDailyContent({String? cityId, bool force = false}) async {
     if (isLoadingDailyContent) {
       return;
     }

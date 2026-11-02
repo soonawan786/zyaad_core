@@ -1,3 +1,22 @@
+## 1.0.6
+
+* **The city is no longer a client concern.** This is the fix that makes the feature
+  reachable at all.
+  * `getPrayerTimes`, `getDailyContent`, `PrayerController.load` and
+    `PrayerController.loadDailyContent` now take an **optional** `cityId`.
+  * Reason: the mobile apps have **no city concept whatsoever** — they hold a zone
+    and send it as a `zoneId` header, and `App\Domain\Zones\ZoneCityResolver` states
+    the rule: *"The client never supplies city_id."* The prayer endpoints demanded a
+    `city_id` no client could produce, so `load(cityId:)` was never callable and the
+    feature was unreachable despite compiling and passing its tests.
+  * The backend now resolves the city from `zones.city_id` via
+    `App\Domain\Prayer\PrayerCityContext`, returning `422 city_required` when it
+    cannot — a code distinct from `islamic_features_disabled`, so the app can tell
+    "we do not know where you are" apart from "you turned this off".
+  * The local window cache is keyed on whatever city the controller was last given,
+    so it still works when none is.
+* 177 tests. `flutter analyze` clean.
+
 ## 1.0.5
 
 * **Daily content, end to end.** The piece that was missing between the backend
