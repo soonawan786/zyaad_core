@@ -7,6 +7,7 @@
 library;
 
 export 'src/api/prayer_api.dart';
+export 'src/features/sharing/sharing.dart';
 export 'src/motion/motion_gate.dart';
 export 'src/notifications/prayer_notification_channel.dart';
 export 'src/notifications/prayer_notification_scheduler.dart';

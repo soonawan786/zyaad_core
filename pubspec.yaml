@@ -51,6 +51,32 @@ dependencies:
   # Opens the OS battery-optimisation screen from the settings guide.
   app_settings: ^7.0.0
 
+  # NOTE: share_plus is deliberately NOT a dependency here.
+  #
+  # It resolves objective_c transitively, whose build hook needs a working Xcode
+  # native-assets toolchain, which made `flutter test` in this package fail before
+  # any test ran on a machine without one. The share sheet is therefore reached
+  # through ShareCardSharer, implemented in the host apps — which already depend on
+  # share_plus. See INTEGRATION.md, "Wiring the share sheet".
+
+# The Naskh face for the share card's Arabic.
+#
+# NOT DECLARED YET, deliberately: `flutter` fails a build when a declared font
+# asset is missing, and the .ttf cannot be committed here. Until it is added the
+# card falls back to the platform's Arabic face, which still shapes correctly.
+#
+# To enable (see assets/font/README.md):
+#   1. download NotoNaskhArabic-Regular.ttf and -Bold.ttf into assets/font/
+#   2. uncomment the block below
+#
+fonts:
+  - family: NotoNaskhArabic
+    fonts:
+      - asset: assets/font/NotoNaskhArabic-Regular.ttf
+        weight: 400
+      - asset: assets/font/NotoNaskhArabic-Bold.ttf
+        weight: 700
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
