@@ -1,3 +1,22 @@
+## 1.0.5
+
+* **Daily content, end to end.** The piece that was missing between the backend
+  endpoint and the share card.
+  * `getDailyContent({cityId, date})` on `PrayerRepositoryInterface`,
+    `PrayerServiceInterface` and `PrayerService`.
+  * `DailyContentDay` — parses `{date, items[], fallback_used}`. Models **both** the
+    ayah and the hadith, because which to feature is a product decision a model
+    should not make. An item with no `reference` or no `source.name` is **skipped
+    rather than thrown**, so one malformed row cannot blank the whole day.
+  * `PrayerController.loadDailyContent({cityId, force})` — separate from `load()`,
+    because the prayer window is needed on app start and the content only when its
+    card is shown. Never throws: a failure leaves the last good day in place rather
+    than blanking a card the user is reading. Re-fetches when the local date moves on.
+  * `DailyContentSection` — the reading card: Arabic in Naskh, both translations,
+    the citation, and a `ShareCardButton` per item. Controller-agnostic, so each app
+    binds its own controller (the app-side `DailyContentCard` adapter does that).
+* 177 tests. `flutter analyze` clean.
+
 ## 1.0.4
 
 * **The share flow.** `ShareCardSheet` + `ShareCardButton` + `showShareCardSheet` —

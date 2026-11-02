@@ -9,6 +9,7 @@ import 'package:timezone/timezone.dart' as tz;
 import 'api/prayer_api.dart';
 import 'notifications/prayer_notification_channel.dart';
 import 'notifications/prayer_notification_scheduler.dart';
+import 'prayer/daily_content.dart';
 import 'prayer/islamic_feature_settings.dart';
 import 'prayer/prayer.dart';
 import 'prayer/prayer_day.dart';
@@ -59,10 +60,20 @@ class PrayerController extends GetxController {
   int scheduledReminders = 0;
   DateTime? nextReminderAt;
 
+  /// Today's ayah and hadith, or null before the first load.
+  ///
+  /// Separate from [days] because it is fetched on a different schedule: the prayer
+  /// window is needed on app start, the daily content only when its card is shown.
+  DailyContentDay? dailyContent;
+
+  bool isLoadingDailyContent = false;
+
   Timer? _ticker;
 
   /// True when the user has switched the whole section off.
   bool get hidden => settings.hidden;
+
+  bool get hasDailyContent => dailyContent?.isNotEmpty ?? false;
 
   bool get hasData => days.isNotEmpty;
 
@@ -367,6 +378,72 @@ class PrayerController extends GetxController {
           ? '${reminder.leadMinutes} minutes before'
           : 'Time for prayer',
     );
+  }
+
+  /// Loads today's ayah and hadith.
+  ///
+  /// Deliberately separate from [load]. The prayer window is needed on app start
+  /// because the home card and the reminders depend on it; the daily content is only
+  /// needed when its card is on screen. Fetching both together would make every
+  /// launch pay for content the user may never scroll to.
+  ///
+  /// **Never throws.** A failure leaves [dailyContent] as it was, so a transient
+  /// network error cannot blank a card the user is already reading.
+  ///
+  /// Re-fetches when the local date has moved on, so a card left open overnight does
+  /// not keep showing yesterday's ayah.
+  Future<void> loadDailyContent({required String cityId, bool force = false}) async {
+    if (isLoadingDailyContent) {
+      return;
+    }
+
+    if (hidden) {
+      // The section is switched off, so there is nothing to show and no reason to
+      // spend a request on it.
+      dailyContent = null;
+      update();
+
+      return;
+    }
+
+    if (!force && dailyContent != null && dailyContent!.date == _todayIso) {
+      return;
+    }
+
+    isLoadingDailyContent = true;
+    update();
+
+    try {
+      final response = await prayerServiceInterface.getDailyContent(cityId: cityId);
+
+      if (response.statusCode == 200) {
+        final body = response.body;
+        final parsed = DailyContentDay.fromApiData(
+          body is Map ? body['data'] : null,
+        );
+
+        if (parsed != null) {
+          dailyContent = parsed;
+        }
+      }
+    } catch (_) {
+      // Swallowed on purpose: see the doc comment. The card keeps whatever it had.
+    } finally {
+      isLoadingDailyContent = false;
+      update();
+    }
+  }
+
+  /// The local calendar date, `YYYY-MM-DD`.
+  ///
+  /// Local rather than UTC: the user sees their own day, and the API's content day
+  /// is configured in the same zone (config/prayer.php, `daily_content.timezone`).
+  String get _todayIso {
+    final now = DateTime.now();
+
+    return '${now.year.toString().padLeft(4, '0')}-'
+        '${now.month.toString().padLeft(2, '0')}-'
+        '${now.day.toString().padLeft(2, '0')}';
   }
 
   String get _localeCode => Get.locale?.languageCode ?? 'en';

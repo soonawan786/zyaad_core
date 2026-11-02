@@ -23,6 +23,13 @@ abstract class PrayerRepositoryInterface {
     int? limit,
   });
 
+  /// Today's ayah and hadith, each with its reference, source and licence.
+  ///
+  /// `cityId` is required even though the content is not city-specific: the Islamic
+  /// features rollout is per city, and without it the endpoint cannot answer "is
+  /// this feature on for this caller?".
+  Future<Response> getDailyContent({required String cityId, String? date});
+
   Future<Response> requestPrayerStop(String tripId, {String? reason});
 
   Future<Response> getPrayerStop(String tripId);
@@ -46,6 +53,8 @@ abstract class PrayerServiceInterface {
     double? radiusKm,
     int? limit,
   });
+
+  Future<Response> getDailyContent({required String cityId, String? date});
 
   Future<Response> requestPrayerStop(String tripId, {String? reason});
 
@@ -86,6 +95,10 @@ class PrayerService implements PrayerServiceInterface {
       limit: limit,
     );
   }
+
+  @override
+  Future<Response> getDailyContent({required String cityId, String? date}) =>
+      repository.getDailyContent(cityId: cityId, date: date);
 
   @override
   Future<Response> requestPrayerStop(String tripId, {String? reason}) =>
