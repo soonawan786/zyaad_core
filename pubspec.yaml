@@ -8,7 +8,7 @@ description: >-
   The domain logic is plain Dart so it can be unit-tested without a device; the
   Flutter layer is here so the rider app and the driver app use one
   implementation of everything rather than two that drift apart.
-version: 1.0.1
+version: 1.0.2
 
 # Not published to pub.dev: consumed as a git dependency (or a path dependency
 # during local development). Remove this line if you ever want `dart pub
