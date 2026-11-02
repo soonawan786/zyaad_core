@@ -1,3 +1,19 @@
+## 1.0.4
+
+* **The share flow.** `ShareCardSheet` + `ShareCardButton` + `showShareCardSheet` —
+  the entry point the feature was missing. A modal sheet with the card preview, a
+  Post/Story toggle, a template picker, and the share action.
+  * A completed share closes the sheet. A **dismissal** does not: the user changed
+    their mind about the destination, not about the card, so it stays open for
+    another attempt.
+  * A failure keeps the sheet open and shows the reason, so a retry is one tap.
+  * The iPad origin is measured from the sheet's own share button — the button the
+    user actually presses — so no call site has to remember it.
+  * Switching to Story re-applies the dark treatment unless a template was pinned.
+* 7 new tests (sheet open, format/template selection reaching the service, the
+  origin being set, close on success, stay open on failure, stay open on dismissal).
+* `flutter analyze` clean.
+
 ## 1.0.3
 
 * Docs only: `INTEGRATION.md` gains "Wiring the share sheet" — the required

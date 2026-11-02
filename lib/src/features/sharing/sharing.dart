@@ -27,4 +27,6 @@ export 'services/share_card_service.dart';
 export 'services/share_card_sharer.dart';
 export 'templates/share_card_templates.dart';
 export 'widgets/share_card.dart';
+export 'widgets/share_card_button.dart';
 export 'widgets/share_card_preview.dart';
+export 'widgets/share_card_sheet.dart';
