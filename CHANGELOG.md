@@ -1,3 +1,24 @@
+## 1.0.7
+
+* **A prayer stop during a ride is now the rider's own preference, not only a city
+  policy.**
+  * `IslamicFeatureSettings` gains `prayerStopEnabled` (`bool?`). `null` means "no
+    opinion, follow the city" — it is sent to the API as `prayer_stop_enabled` and
+    read back from it, so the toggle and the backend agree.
+  * `PrayerController.setPrayerStopDuringRide(bool)` is the setter.
+  * `PrayerSettingsView` gains an **optional** `onTogglePrayerStopDuringRide` and
+    renders a "Prayer stop during a ride" switch when it is supplied. Optional on
+    purpose: an app that has not adopted it still compiles, and simply does not show
+    the row rather than showing a switch that does nothing.
+  * `PrayerStopOfferCard` and `shouldOfferPrayerStop()` add the proactive in-ride
+    prompt: the rider is asked once per ride, and only when their own switch is on
+    **and** the backend says the ride may have a stop.
+  * The backend answers that with `GET /api/v1/trips/{trip}/prayer-stop` under
+    `data.policy` (`can_request`, `reason`, `max_minutes`, `free_grace_minutes`,
+    `waiting_fee_enabled`, `user_preference`) and stores the preference on
+    `user_prayer_settings.prayer_stop_enabled`.
+
+
 ## 1.0.6
 
 * **The city is no longer a client concern.** This is the fix that makes the feature

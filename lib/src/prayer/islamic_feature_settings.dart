@@ -74,6 +74,7 @@ class IslamicFeatureSettings {
     this.reminderLeadMinutes = 10,
     this.azanSoundEnabled = false,
     this.azanSoundDuringRide = false,
+    this.prayerStopEnabled,
   });
 
   /// The master switch. Off means the app hides every Islamic surface, and the
@@ -97,6 +98,16 @@ class IslamicFeatureSettings {
   /// Device-only: allow that sound while a ride is active. Off by default — a loud
   /// azan over a live navigation prompt is worse than a silent reminder.
   final bool azanSoundDuringRide;
+
+  /// Server-side: does this rider want to be offered a prayer stop during a ride?
+  ///
+  /// null means "no opinion, follow the city" — what the API returns for a user who
+  /// never touched the toggle. It reads as ON, because the city's own switch has
+  /// already decided whether the feature exists there at all.
+  final bool? prayerStopEnabled;
+
+  /// The effective answer, with "follow the city" resolved to on.
+  bool get offersPrayerStopDuringRide => prayerStopEnabled ?? true;
 
   /// The lead times the settings screen offers.
   static const List<int> leadMinuteOptions = [0, 5, 10, 15, 20, 30];
@@ -144,6 +155,7 @@ class IslamicFeatureSettings {
     int? reminderLeadMinutes,
     bool? azanSoundEnabled,
     bool? azanSoundDuringRide,
+    bool? prayerStopEnabled,
   }) {
     return IslamicFeatureSettings(
       islamicFeaturesEnabled: islamicFeaturesEnabled ?? this.islamicFeaturesEnabled,
@@ -155,6 +167,7 @@ class IslamicFeatureSettings {
       reminderLeadMinutes: reminderLeadMinutes ?? this.reminderLeadMinutes,
       azanSoundEnabled: azanSoundEnabled ?? this.azanSoundEnabled,
       azanSoundDuringRide: azanSoundDuringRide ?? this.azanSoundDuringRide,
+      prayerStopEnabled: prayerStopEnabled ?? this.prayerStopEnabled,
     );
   }
 
@@ -167,6 +180,7 @@ class IslamicFeatureSettings {
         'calculation_method': calculationMethod?.key,
         'asr_method': asrMethod?.key,
         'azan_reminders_enabled': azanRemindersEnabled,
+        'prayer_stop_enabled': prayerStopEnabled,
         'reminder_lead_minutes': reminderLeadMinutes,
         'reminders': {
           for (final prayer in Prayer.obligatory) prayer.key: wantsReminder(prayer),
@@ -224,6 +238,8 @@ class IslamicFeatureSettings {
       ),
       azanRemindersEnabled:
           json['azan_reminders_enabled'] is bool ? json['azan_reminders_enabled'] as bool : true,
+      prayerStopEnabled:
+          json['prayer_stop_enabled'] is bool ? json['prayer_stop_enabled'] as bool : null,
       reminders: {
         for (final prayer in Prayer.obligatory)
           prayer: rawReminders is Map

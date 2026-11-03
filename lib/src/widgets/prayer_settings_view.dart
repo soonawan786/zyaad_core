@@ -26,6 +26,7 @@ class PrayerSettingsView extends StatelessWidget {
     required this.onChangeLeadMinutes,
     required this.onToggleSound,
     required this.onToggleSoundDuringRide,
+    this.onTogglePrayerStopDuringRide,
     required this.onRequestExactAlarm,
     required this.onOpenBatterySettings,
     this.localeCode = 'en',
@@ -43,6 +44,10 @@ class PrayerSettingsView extends StatelessWidget {
   final ValueChanged<int> onChangeLeadMinutes;
   final ValueChanged<bool> onToggleSound;
   final ValueChanged<bool> onToggleSoundDuringRide;
+
+  /// Optional so this stays a backward-compatible addition: an app that has not
+  /// adopted it simply does not render the row (rather than showing a dead switch).
+  final ValueChanged<bool>? onTogglePrayerStopDuringRide;
   final VoidCallback onRequestExactAlarm;
   final VoidCallback onOpenBatterySettings;
 
@@ -87,6 +92,17 @@ class PrayerSettingsView extends StatelessWidget {
             onToggleSound: onToggleSound,
             onToggleSoundDuringRide: onToggleSoundDuringRide,
           ),
+          if (onTogglePrayerStopDuringRide != null) ...[
+            const Divider(),
+            SwitchListTile(
+              title: const Text('Prayer stop during a ride'),
+              subtitle: const Text(
+                'Ask me during a ride whether I want a short stop for prayer.',
+              ),
+              value: settings.offersPrayerStopDuringRide,
+              onChanged: onTogglePrayerStopDuringRide,
+            ),
+          ],
           const Divider(),
           BatteryOptimisationGuide(onOpenSettings: onOpenBatterySettings),
           if (!exactAlarmsGranted)

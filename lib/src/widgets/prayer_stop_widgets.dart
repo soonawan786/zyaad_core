@@ -154,3 +154,88 @@ Future<bool> confirmPrayerStopRequest(BuildContext context) async {
 
   return confirmed ?? false;
 }
+
+/// Whether the ride screen should offer the in-ride prayer stop.
+///
+/// [policy] is `data.policy` from `GET /api/v1/trips/{trip}/prayer-stop`: the
+/// backend's own answer to "may this ride have a stop?". [userWantsIt] is the
+/// rider's toggle. Both must agree, so the prompt can never appear on a ride the
+/// API would refuse — and a rider who switched it off is never asked.
+bool shouldOfferPrayerStop({
+  required Map<String, dynamic>? policy,
+  required bool userWantsIt,
+}) {
+  if (!userWantsIt || policy == null) return false;
+
+  return policy['can_request'] == true;
+}
+
+/// The proactive in-ride prompt: "Do you want a prayer stop during this ride?"
+///
+/// Distinct from [RequestPrayerStopButton], which is the persistent action. This is
+/// the *ask* the rider asked to be given, shown once per ride and dismissible.
+class PrayerStopOfferCard extends StatelessWidget {
+  const PrayerStopOfferCard({
+    super.key,
+    required this.onAccept,
+    required this.onDismiss,
+    this.isBusy = false,
+  });
+
+  final VoidCallback onAccept;
+  final VoidCallback onDismiss;
+  final bool isBusy;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Padding(
+        padding: const EdgeInsets.all(14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.mosque_outlined, size: 20),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Do you want a prayer stop during this ride?',
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 6),
+            Text(
+              'The driver will be asked to accept. Waiting time during the stop may '
+              'be charged after the free grace period.',
+              style: theme.textTheme.bodySmall,
+            ),
+            const SizedBox(height: 4),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton(
+                  onPressed: isBusy ? null : onDismiss,
+                  child: const Text('Not now'),
+                ),
+                const SizedBox(width: 8),
+                FilledButton(
+                  onPressed: isBusy ? null : onAccept,
+                  child: const Text('Yes, ask'),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+

@@ -193,6 +193,13 @@ class PrayerController extends GetxController {
   Future<void> setAzanSoundDuringRide(bool enabled) =>
       updateSettings(settings.copyWith(azanSoundDuringRide: enabled));
 
+  /// The rider's own switch for the in-ride prayer stop.
+  ///
+  /// It is a server setting, not a device one, so the ride screen and the backend
+  /// agree on whether a stop should be offered.
+  Future<void> setPrayerStopDuringRide(bool enabled) =>
+      updateSettings(settings.copyWith(prayerStopEnabled: enabled));
+
   // ---------------------------------------------------------------------------
   // Android permissions and battery restrictions
   // ---------------------------------------------------------------------------
