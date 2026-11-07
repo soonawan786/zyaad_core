@@ -7,6 +7,13 @@
 library;
 
 export 'src/api/prayer_api.dart';
+export 'src/call/call_adapter.dart';
+export 'src/call/call_api.dart';
+export 'src/call/call_controller.dart';
+export 'src/call/call_models.dart';
+export 'src/call/screens/in_call_screen.dart';
+export 'src/call/screens/incoming_call_screen.dart';
+export 'src/call/widgets/call_button.dart';
 export 'src/features/sharing/sharing.dart';
 export 'src/motion/motion_gate.dart';
 export 'src/notifications/prayer_notification_channel.dart';
