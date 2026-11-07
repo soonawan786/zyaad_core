@@ -39,4 +39,16 @@ abstract class CallApi {
 
   /// Optional: the metadata for one session (used by the incoming-call screen).
   Future<CallSessionInfo> session(String callSessionId);
+
+  /// WebRTC signalling relay (provider `webrtc` only): send an offer/answer/ICE
+  /// candidate to the other participant.
+  Future<void> sendSignal(
+    String callSessionId, {
+    required String kind,
+    required Map<String, dynamic> payload,
+  });
+
+  /// Fetch signalling sent to me after [afterId] (the reliability backstop when a
+  /// realtime broadcast was missed).
+  Future<List<SignalingMessage>> signals(String callSessionId, {int afterId = 0});
 }

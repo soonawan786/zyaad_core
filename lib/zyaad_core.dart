@@ -11,6 +11,7 @@ export 'src/call/call_adapter.dart';
 export 'src/call/call_api.dart';
 export 'src/call/call_controller.dart';
 export 'src/call/call_models.dart';
+export 'src/call/call_signaling.dart';
 export 'src/call/screens/in_call_screen.dart';
 export 'src/call/screens/incoming_call_screen.dart';
 export 'src/call/widgets/call_button.dart';

@@ -33,4 +33,4 @@ abstract class CallAdapter {
 /// Builds the adapter for whichever provider the backend returned.
 /// The host app passes one of these to [CallController]; it is the only place a
 /// concrete SDK is named.
-typedef CallAdapterFactory = CallAdapter Function(String provider);
+typedef CallAdapterFactory = CallAdapter Function(String provider, CallJoinCredentials credentials);

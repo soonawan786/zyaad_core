@@ -36,6 +36,9 @@ class CallJoinCredentials {
     this.appId,
     this.uid,
     this.channel,
+    this.sessionId,
+    this.role,
+    this.iceServers = const [],
   });
 
   final String provider;
@@ -47,6 +50,15 @@ class CallJoinCredentials {
   final String? appId;
   final String? uid;
   final String? channel;
+
+  /// The backend call session id — needed by the WebRTC signalling relay.
+  final String? sessionId;
+
+  /// 'caller' | 'callee' for the p2p (webrtc) provider; decides the SDP offerer.
+  final String? role;
+
+  /// STUN/TURN server list for WebRTC (`[{urls: ..., username?, credential?}]`).
+  final List<dynamic> iceServers;
 
   factory CallJoinCredentials.fromJson(Map<String, dynamic> json) {
     return CallJoinCredentials(
@@ -60,6 +72,9 @@ class CallJoinCredentials {
       appId: json['app_id'] as String?,
       uid: json['uid'] as String?,
       channel: json['channel'] as String?,
+      sessionId: json['session_id'] as String?,
+      role: json['role'] as String?,
+      iceServers: (json['ice_servers'] as List<dynamic>?) ?? const [],
     );
   }
 
@@ -105,6 +120,31 @@ class CallSessionInfo {
       callerRole: callRoleFromString(json['caller_role'] as String?),
       calleeRole: callRoleFromString(json['callee_role'] as String?),
       expiresAt: DateTime.tryParse((json['expires_at'] as String?) ?? ''),
+    );
+  }
+}
+
+/// A WebRTC signalling message (SDP offer/answer or an ICE candidate) exchanged
+/// through the backend relay. Used by the `webrtc` provider only.
+class SignalingMessage {
+  const SignalingMessage({
+    required this.id,
+    required this.kind,
+    required this.fromRole,
+    required this.payload,
+  });
+
+  final int id;
+  final String kind; // offer | answer | ice
+  final String fromRole; // caller | callee
+  final Map<String, dynamic> payload;
+
+  factory SignalingMessage.fromJson(Map<String, dynamic> json) {
+    return SignalingMessage(
+      id: (json['id'] as num?)?.toInt() ?? 0,
+      kind: (json['kind'] as String?) ?? '',
+      fromRole: (json['from_role'] as String?) ?? '',
+      payload: (json['payload'] as Map<String, dynamic>?) ?? const <String, dynamic>{},
     );
   }
 }

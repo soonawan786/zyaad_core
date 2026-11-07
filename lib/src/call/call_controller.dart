@@ -190,7 +190,7 @@ class CallController extends GetxController {
     providerName.value = credentials.provider;
 
     // The ONLY place a provider is chosen, and it is data-driven.
-    final adapter = adapterFactory(credentials.provider);
+    final adapter = adapterFactory(credentials.provider, credentials);
     _adapter = adapter;
 
     _subscription = adapter.events.listen(_onAdapterEvent);
