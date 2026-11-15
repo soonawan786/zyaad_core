@@ -51,9 +51,19 @@ class NextPrayerCard extends StatelessWidget {
       }
 
       // No data (never loaded, or the city has the feature disabled): say so rather
-      // than showing an empty card.
+      // than showing an empty card. Still tappable on purpose — the prayer screen is
+      // where the user retries and changes settings, and an un-tappable message left
+      // riders with no way into the feature at all.
       return _Shell(
-        child: Text(emptyMessage, style: Theme.of(context).textTheme.bodyMedium),
+        onTap: onTap,
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(emptyMessage, style: Theme.of(context).textTheme.bodyMedium),
+            ),
+            const Icon(Icons.chevron_right),
+          ],
+        ),
       );
     }
 
